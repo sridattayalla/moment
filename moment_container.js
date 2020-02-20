@@ -12,7 +12,7 @@ class MomentContainer{
     * millisec : int*/
     constructor(timeStamp, offset){
 
-        console.log(timeStamp);
+        console.log("parsed time ",timeStamp);
 
         let time = new Date(timeStamp);
         let year = time.getFullYear();
@@ -98,7 +98,7 @@ class MomentContainer{
             weekOfYearIso = 1;
         }
         else {
-            let yearStart = new Date(weekYear, 0, 0, 0, 0, 0);
+            let yearStart = new Date(weekYear, 0, 1, 0, 0, 0);
             let startDay = yearStart.getDay() == 0 ? 7 : yearStart.getDay();
 
             let daysInFirstWeek = 7 - (startDay - 1);
@@ -113,7 +113,7 @@ class MomentContainer{
 
         //week of year
         let weekOfYear = 1;
-        let yearStart = new Date(year, 0, 0, 0, 0, 0);
+        let yearStart = new Date(year, 0, 1, 0, 0, 0);
         let startDay = yearStart.getDay();
 
         let daysInFirstWeek = 7 - (startDay);
@@ -138,24 +138,24 @@ class MomentContainer{
         this.moment['d'] = day;
 
         //day of year
-        yearStart = new Date(year, 0, 0, 0, 0, 0);
-        let dayOfYear = MomentContainer.convert((timeStamp-yearStart.getTime())/1000, 'seconds', 'days');
+        yearStart = new Date(year, 0, 1, 0, 0, 0);
+        let dayOfYear = MomentContainer.convert((timeStamp-yearStart.getTime())/1000, 'seconds', 'days', true) + 1;
         this.moment['DDDD'] = '00'.substring(0, 3-dayOfYear.toString().length) + dayOfYear.toString();
         this.moment['DDDo'] = dayOfYear.toString() + this.oPrefix[dayOfYear%10]
         this.moment['DDD'] = dayOfYear;
 
         //day of month
-        let monthStart = new Date(year, month);
-        let dayOfMonth = MomentContainer.convert((timeStamp-monthStart.getTime())/1000, 'seconds', 'days');
+        let monthStart = new Date(year, month, 1, 0, 0, 0);
+        let dayOfMonth = MomentContainer.convert((timeStamp-monthStart.getTime())/1000, 'seconds', 'days', true)+1;
         this.moment['DD'] = '0'.substring(0, 2-dayOfMonth.toString().length) + dayOfMonth.toString();
         this.moment['Do'] = dayOfMonth.toString() + this.oPrefix[dayOfMonth%10]
         this.moment['D'] = dayOfMonth;
 
         //quarter
         let quater = 4;
-        if(hour<6){quater=1}
-        else if(hour<12){quater=2}
-        else if(hour<18){quater=3}
+        if(month<4){quater=1}
+        else if(month<7){quater=2}
+        else if(month<10){quater=3}
         this.moment['Qo'] = quater.toString() + this.oPrefix[quater];
         this.moment['Q'] = quater;
 
@@ -168,7 +168,7 @@ class MomentContainer{
         this.moment['M'] = monthToShow;
     }
 
-    static convert(val, type1, type2, terminate=false){
+    static convert(val, type1, type2, terminate){
 
         let divideFactors = {
             'seconds':1000,
