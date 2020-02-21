@@ -4,6 +4,7 @@
 
 const MomentContainer = require('./moment_container');
 const MomentParser = require('./moment_parser');
+const LocaleSupport = require('./localeSupport');
 
 class Moment {
 
@@ -11,19 +12,26 @@ class Moment {
      date(String)
      format(String)
      */
-    constructor(date, format) {
-
-        this.formats = {'/^\\d{4,}.\\d{2}.\\d{2}$/': "YYYY-MM-DD"}
+    constructor(date, format, strict) {
 
         this.date = date;
         this.format = format;
+        this.locale = 'en';
+        this.isStrict = strict;
 
-        let momentParser = new MomentParser(date, format);
-        this.momentContainer = momentParser.parseMoment();
+        this.momentParser = new MomentParser(date, format, this.locale, this.isStrict);
+        this.momentContainer = this.momentParser.parseMoment();
 
-        //testing
-        //this.momentContainer = new MomentContainer(1582022862233, "+100");
+    }
 
+    setLocale(locale){
+        if(LocaleSupport.hasOwnProperty(locale)) {
+            this.locale = locale;
+        }
+    }
+
+    isValid(){
+        return this.momentParser.isValidTime();
     }
 
 }
