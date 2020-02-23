@@ -1,5 +1,5 @@
-const MomentContainer = require('./moment_container');
-const LocaleSupport = require('./localeSupport');
+const MomentContainer = require('./MomentContainer');
+const LocaleSupport = require('./LocaleSupport');
 
 /*
     * supportedFormats
@@ -58,7 +58,12 @@ class MomentParser {
     parseMoment(){
         if(this.date==null){
             let time = new Date();
-            return new MomentContainer(time.getTime(), 0);
+            return new MomentContainer(time.getTime(), 0, this.locale);
+        }
+
+        if(this.date.constructor == Array){
+            if(this.date.length == 3)
+            return this.parseFromDate(this.date[0], this.date[1], this.date[2], 0, 0, 0, 0, 0)
         }
 
         else if(this.format==null){
@@ -78,7 +83,7 @@ class MomentParser {
         let minute = 0;
         let second = 0;
         let milliSecond = 0;
-        let offset = 0;
+        let offset = null;
         let day = 0;
         let weekOfYear = 0;
         let dayOfYear = 0;
@@ -229,7 +234,7 @@ class MomentParser {
                 + MomentContainer.convert(minute, "minutes", "seconds")
                 + second
             )*1000
-            +milliSecond, offset);
+            +milliSecond, (offset ? offset : (new Date()).getTimezoneOffset()), this.locale);
     }
 
     parseWeekDateFormat(year, weekOfYear, day, hour, minute, second, milliSecond, offset){
@@ -271,7 +276,7 @@ class MomentParser {
             + second*1000
             + milliSecond;
 
-        return new MomentContainer(timeStamp, offset);
+        return new MomentContainer(timeStamp, offset, this.locale);
     }
 
     parseOrdinalDateFormat(year, dayOfYear, hour, minute, second, milliSecond, offset){
@@ -285,7 +290,7 @@ class MomentParser {
                 + MomentContainer.convert(minute, "minutes", "seconds")
                 + second
             )*1000
-            +milliSecond, offset);
+            +milliSecond, offset, this.locale);
     }
 
     parseFromFormat() {
@@ -387,18 +392,16 @@ class MomentParser {
         || 0
 
         if(this.userGivenInputTime['hh']){
-            this.userGivenInputTime['hh'];
             if(this.userGivenInputTime['a']){
                 if(this.userGivenInputTime['a']=='pm'){
-                    this.userGivenInputTime['hh'] += 12
+                    hour = this.userGivenInputTime['hh'] +12
                 }
             }
             else if(this.userGivenInputTime['A']){
                 if(this.userGivenInputTime['A']=='PM'){
-                    this.userGivenInputTime['hh'] += 12
+                    hour = this.userGivenInputTime['hh'] + 12
                 }
             }
-            hour = this.userGivenInputTime['hh'];
         }
 
         if(this.userGivenInputTime['h']){

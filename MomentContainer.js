@@ -1,3 +1,5 @@
+const LocaleSupport = require('./LocaleSupport');
+
 class MomentContainer{
     /*
     * timeStamp : int
@@ -10,7 +12,7 @@ class MomentContainer{
     * min : int
     * sec : int
     * millisec : int*/
-    constructor(timeStamp, offset){
+    constructor(timeStamp, offset, locale){
 
         console.log("parsed time ",timeStamp);
 
@@ -24,10 +26,11 @@ class MomentContainer{
         let sec = time.getSeconds();
         let milliSec = time.getMilliseconds();
 
-        this.days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        this.daysShorthand = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        this.months = ['January', 'Febraury', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        this.monthShorthand = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        this.days = LocaleSupport[locale]['days'];
+        this.daysShorthand = LocaleSupport[locale]['daysShortHand'];
+        this.months = LocaleSupport[locale]['months'];
+        this.monthShorthand =  LocaleSupport[locale]['monthsShortHand'];
+        console.log("locale ",locale)
         this.oPrefix = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th',];
         this.shortHands = ['x', 'X', 'ZZ', 'Z', 'z', 'zz', 'SSSS ... SSSSSSSSS', 'SSS', 'SS', 'S', 'ss', 's',
             'mm', 'm', 'kk', 'k', 'hh', 'h', 'HH', 'H', 'a', 'A', 'GGGG', 'GG', 'gggg', 'gg', 'YYYY', 'YY', 'Y',
@@ -41,8 +44,9 @@ class MomentContainer{
         this.moment['X'] = timeStamp/1000;
 
         //timezone
-        /*this.moment['ZZ'] = offset;
-        this.moment['Z'] = offset.substring(0, 2) + ':' + offset.substring(2, offset.length);*/
+        offset = offset.toString()
+        this.moment['ZZ'] = offset;
+        this.moment['Z'] = offset.substring(0, 2) + ':' + offset.substring(2, offset.length);
 
         //fractional seconds
         let msLength = milliSec.toString().length;

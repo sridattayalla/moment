@@ -37,7 +37,7 @@ let localeSupport = {
         'k': '(\\d+)',
         'mm': '(\\d{2})',
         'm': '(\\d{1,2})',
-        'sss': '(\\d{1, 3})',
+        'SSS': '(\\d{1,3})',
         'ss': '(\\d{2})',
         's': '(\\d+)',
     },
@@ -94,7 +94,22 @@ let localeSupport = {
         },
         'monthsShortHand': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         'months': ['January', 'Febraury', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-        'days': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        'days': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        'daysShortHand': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    },
+    'hi':{
+        'localFormats': {
+            'LLLL': 'dddd, MMMM D YYYY h:m A',
+            'LLL': 'MMMM D YYYY h:m A',
+            'LL': 'MMMM D YYYY',
+            'L': 'DD/MM/YYYY',
+            'LTS': 'h:m:s A',
+            'LT': 'h:m A'
+        },
+        'monthsShortHand': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        'months': ['जनवरी', 'फ़रवरी', 'मार्च ', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितम्बर', 'अकतूबर', 'नवंबर', 'दिसम्बर'],
+        'days': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        'daysShortHand': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     }
 }
 
