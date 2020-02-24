@@ -14,8 +14,6 @@ class MomentContainer{
     * millisec : int*/
     constructor(timeStamp, offset, locale){
 
-        console.log("parsed time ",timeStamp);
-
         let time = new Date(timeStamp);
         let year = time.getFullYear();
         let month = time.getMonth();
@@ -30,8 +28,6 @@ class MomentContainer{
         this.daysShorthand = LocaleSupport[locale]['daysShortHand'];
         this.months = LocaleSupport[locale]['months'];
         this.monthShorthand =  LocaleSupport[locale]['monthsShortHand'];
-        console.log("locale ",locale)
-        this.oPrefix = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th',];
         this.shortHands = ['x', 'X', 'ZZ', 'Z', 'z', 'zz', 'SSSS ... SSSSSSSSS', 'SSS', 'SS', 'S', 'ss', 's',
             'mm', 'm', 'kk', 'k', 'hh', 'h', 'HH', 'H', 'a', 'A', 'GGGG', 'GG', 'gggg', 'gg', 'YYYY', 'YY', 'Y',
             'WW', 'Wo', 'W', 'ww', 'wo', 'w', 'E', 'e', 'dddd', 'ddd', 'dd', 'do', 'd', 'DDDD', 'DDDo', 'DDD', 'Do',
@@ -44,7 +40,7 @@ class MomentContainer{
         this.moment['X'] = timeStamp/1000;
 
         //timezone
-        offset = offset.toString()
+        offset = offset ? offset.toString() : '+000'
         this.moment['ZZ'] = offset;
         this.moment['Z'] = offset.substring(0, 2) + ':' + offset.substring(2, offset.length);
 
@@ -108,11 +104,10 @@ class MomentContainer{
             let daysInFirstWeek = 7 - (startDay - 1);
             let daysRemaining = MomentContainer.convert((timeStamp - yearStart.getTime()) / 1000 - MomentContainer.convert(daysInFirstWeek, 'days', 'seconds'), 'seconds', 'days');
             weekOfYearIso = startDay <= 4 ? 1 : 0;
-            console.log(daysRemaining)
             weekOfYearIso += MomentContainer.convert(daysRemaining, 'days', 'weeks');
         }
         this.moment['WW'] = '0'.substring(0, 2-weekOfYearIso.toString().length) + weekOfYearIso.toString();
-        this.moment['Wo'] = weekOfYearIso.toString() + this.oPrefix[weekOfYearIso % 10];
+        this.moment['Wo'] = weekOfYearIso.toString() + MomentContainer.getPrefix(weekOfYearIso);
         this.moment['W'] = weekOfYearIso.toString();
 
         //week of year
@@ -125,7 +120,7 @@ class MomentContainer{
         weekOfYear += MomentContainer.convert(daysRemaining, 'days', 'weeks');
 
         this.moment['ww'] = '0'.substring(0, 2-weekOfYear.toString().length) + weekOfYear.toString();
-        this.moment['wo'] = weekOfYear.toString() + this.oPrefix[weekOfYear % 10];
+        this.moment['wo'] = weekOfYear.toString() + MomentContainer.getPrefix(weekOfYear);
         this.moment['w'] = weekOfYear.toString();
 
         //day of week(iso)
@@ -138,21 +133,21 @@ class MomentContainer{
         this.moment['dddd'] = this.days[day];
         this.moment['ddd'] = this.daysShorthand[day];
         this.moment['dd'] = this.daysShorthand[day].substring(0,2);
-        this.moment['do'] = day.toString() + this.oPrefix[day%10];
+        this.moment['do'] = day.toString() + MomentContainer.getPrefix(day);
         this.moment['d'] = day;
 
         //day of year
         yearStart = new Date(year, 0, 1, 0, 0, 0);
         let dayOfYear = MomentContainer.convert((timeStamp-yearStart.getTime())/1000, 'seconds', 'days', true) + 1;
         this.moment['DDDD'] = '00'.substring(0, 3-dayOfYear.toString().length) + dayOfYear.toString();
-        this.moment['DDDo'] = dayOfYear.toString() + this.oPrefix[dayOfYear%10]
+        this.moment['DDDo'] = dayOfYear.toString() + MomentContainer.getPrefix(dayOfYear);
         this.moment['DDD'] = dayOfYear;
 
         //day of month
         let monthStart = new Date(year, month, 1, 0, 0, 0);
         let dayOfMonth = MomentContainer.convert((timeStamp-monthStart.getTime())/1000, 'seconds', 'days', true)+1;
         this.moment['DD'] = '0'.substring(0, 2-dayOfMonth.toString().length) + dayOfMonth.toString();
-        this.moment['Do'] = dayOfMonth.toString() + this.oPrefix[dayOfMonth%10]
+        this.moment['Do'] = dayOfMonth.toString() + MomentContainer.getPrefix(dayOfMonth);
         this.moment['D'] = dayOfMonth;
 
         //quarter
@@ -160,7 +155,7 @@ class MomentContainer{
         if(month<4){quater=1}
         else if(month<7){quater=2}
         else if(month<10){quater=3}
-        this.moment['Qo'] = quater.toString() + this.oPrefix[quater];
+        this.moment['Qo'] = quater.toString() + MomentContainer.getPrefix(quater);
         this.moment['Q'] = quater;
 
         //month
@@ -168,7 +163,7 @@ class MomentContainer{
         this.moment['MMMM'] = this.months[month];
         this.moment['MMM'] = this.monthShorthand[month];
         this.moment['MM'] = '0'.substring(0, 2- monthToShow.toString().length) + monthToShow.toString();
-        this.moment['Mo'] = monthToShow.toString() + this.oPrefix[monthToShow%10];
+        this.moment['Mo'] = monthToShow.toString() + MomentContainer.getPrefix(monthToShow);
         this.moment['M'] = monthToShow;
     }
 
@@ -187,6 +182,16 @@ class MomentContainer{
         }
 
         return Math.ceil((val*divideFactors[type1]) / divideFactors[type2]);
+    }
+
+    static getPrefix(x){
+        let oPrefix = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th',];
+
+        if(x>10 && x<20){
+            return "th";
+        }
+
+        return oPrefix[x%10]
     }
 
 }

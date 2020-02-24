@@ -2,7 +2,6 @@
 * Author : SriDattaYalla
 * */
 
-const MomentContainer = require('./MomentContainer');
 const MomentParser = require('./MomentParser');
 const LocaleSupport = require('./LocaleSupport');
 const MomentFormator = require('./MomentFormator');
@@ -41,7 +40,7 @@ class Moment {
     }
 
     Format(givenFormat){
-        return (new MomentFormator(this.momentContainer, givenFormat)).formatTime();
+        return (new MomentFormator(this.momentContainer, givenFormat, this.locale)).formatTime();
     }
 
     from(b){

@@ -61,18 +61,22 @@ class MomentParser {
             return new MomentContainer(time.getTime(), 0, this.locale);
         }
 
+        if(this.date instanceof Date){
+            return new MomentContainer(this.date.getTime(), this.date.getTimezoneOffset(), this.locale)
+        }
+
         if(this.date.constructor == Array){
             if(this.date.length == 3)
             return this.parseFromDate(this.date[0], this.date[1], this.date[2], 0, 0, 0, 0, 0)
         }
 
-        else if(this.format==null){
+        if(this.format==null){
             return this.parseFromDefaults();
         }
 
-        else{
-            return this.parseFromFormat();
-        }
+
+        return this.parseFromFormat();
+
     }
 
     parseFromDefaults() {
@@ -114,7 +118,6 @@ class MomentParser {
                 second = matches[6] ? parseInt(matches[6]) : 0;
                 milliSecond = matches[8] ? parseInt(matches[8]) : 0
 
-                console.log(matches)
                 if(matches[9]){
                     offset = getOffset(matches[9]);
                 }
@@ -131,7 +134,6 @@ class MomentParser {
 
         else if(this.iso8601BasicShortCalenderFormat.test(this.date)){
             let tokens = this.iso8601BasicShortCalenderFormat.exec(this.date);
-            console.log(tokens)
             year = parseInt(tokens[1]);
             month = parseInt(tokens[2])
             date = parseInt(tokens[3])
@@ -159,7 +161,6 @@ class MomentParser {
 
             if(this.iso8601WeekDateFormatTail.test(tokens[4])){
                 let matches = this.iso8601WeekDateFormatTail.exec(tokens[4]);
-                console.log(matches)
                 hour = matches[1] ? parseInt(matches[1]) : 0;
                 minute = matches[3] ? parseInt(matches[3]) : 0;
                 second = matches[4] ? parseInt(matches[5]) : 0;
@@ -193,7 +194,6 @@ class MomentParser {
 
             if(tokens[3] && this.iso8601OrdinalDateFormatTail.test(tokens[3])){
                 let matches = this.iso8601OrdinalDateFormatTail.exec(tokens[3]);
-                console.log(matches)
                 hour = matches[1] ? parseInt(matches[1]) : 0;
                 minute = matches[3] ? parseInt(matches[3]) : 0;
                 second = matches[5] ? parseInt(matches[5]) : 0;
@@ -207,10 +207,8 @@ class MomentParser {
             let tokens = this.iso8601BasicShortOrdinalDateFormat.exec(this.date);
             year = parseInt(tokens[1]);
             dayOfYear = parseInt(tokens[2]);
-            console.log(tokens)
             if(tokens[3] && this.iso8601ShortOrdinalDateFormatTail.test(tokens[3])){
                 let matches = this.iso8601ShortOrdinalDateFormatTail.exec(tokens[3]);
-                console.log(matches)
                 hour = matches[1] ? parseInt(matches[1]) : 0;
                 minute = matches[2] ? parseInt(matches[2]) : 0;
                 second = matches[3] ? parseInt(matches[3]) : 0;
@@ -234,7 +232,7 @@ class MomentParser {
                 + MomentContainer.convert(minute, "minutes", "seconds")
                 + second
             )*1000
-            +milliSecond, (offset ? offset : (new Date()).getTimezoneOffset()), this.locale);
+            +milliSecond, (offset!=null ? offset : (new Date()).getTimezoneOffset()), this.locale);
     }
 
     parseWeekDateFormat(year, weekOfYear, day, hour, minute, second, milliSecond, offset){
@@ -281,7 +279,6 @@ class MomentParser {
 
     parseOrdinalDateFormat(year, dayOfYear, hour, minute, second, milliSecond, offset){
         let timeStamp = (new Date(year, 0, 1)).getTime();
-        console.log(timeStamp)
 
         return new MomentContainer(timeStamp
             +(
@@ -294,30 +291,6 @@ class MomentParser {
     }
 
     parseFromFormat() {
-        let parsedTime = {
-            'YYYY':(new Date()).getFullYear(),
-            'YY' : (new Date()).getFullYear().toString().substring(2, 4),
-            'Y': null,
-
-            'gggg':(new Date()).getFullYear(),
-            'gg' : (new Date()).getFullYear().toString().substring(2, 4),
-
-            'Q': null,
-            'MM':null,
-            'M':null,
-            'MMM': null,
-            'MMMM': null,
-
-            'ww': null,
-            'w': null,
-
-            'DDD': null,
-            'DDDD': null,
-
-            'DD': null,
-            'D': null,
-            'Do': null,
-        }
 
         let format = null;
 
@@ -332,8 +305,8 @@ class MomentParser {
 
     parseToCustomFormatRegex(format) {
         let tempFormat = format;
-        Object.keys(LocaleSupport.formatRegex).forEach(function (key) {
-            tempFormat = tempFormat.replace(new RegExp(key, 'g'), LocaleSupport.formatRegex[key]);
+        Object.keys(LocaleSupport.parseRegex).forEach(function (key) {
+            tempFormat = tempFormat.replace(new RegExp(key, 'g'), LocaleSupport.parseRegex[key]);
         })
         if(tempFormat==format){
             throw "error"
@@ -343,11 +316,10 @@ class MomentParser {
     }
 
     makeOrderfromFormat(format, regex){
-        console.log("regex ", regex)
         let formatedDate = regex.exec(this.date);
         let tempFormat = format;
         let containedTypes = {};
-        Object.keys(LocaleSupport.formatRegex).forEach(function (key) {
+        Object.keys(LocaleSupport.parseRegex).forEach(function (key) {
             if(tempFormat.includes(key)){
                 let pos = tempFormat.indexOf(key);
                 tempFormat = tempFormat.replace(new RegExp(key), '          '.substring(0, key.length));
@@ -366,14 +338,18 @@ class MomentParser {
 
     parseToCustomFormat(order, regex) {
         let tokens = regex.exec(this.date);
-        console.log("tokens ", tokens);
-        console.log("order ", order);
 
         for(let i=1; i<order.length; i++){
             this.userGivenInputTime[order[i]] = isNaN(parseInt(tokens[i])) ? tokens[i] : parseInt(tokens[i]);
         }
 
-        console.log("paarsed time ", this.userGivenInputTime);
+        if(this.userGivenInputTime.hasOwnProperty('x')){
+            return new MomentContainer(this.userGivenInputTime['x'], 0, this.locale);
+        }
+
+        if(this.userGivenInputTime.hasOwnProperty('X')){
+            return new MomentContainer(this.userGivenInputTime['X']*1000, 0, this.locale);
+        }
 
         if(this.userGivenInputTime['YY']){
             this.userGivenInputTime['YY'] = parseInt(this.userGivenInputTime['YY']>68 ? 19 : 20 + this.userGivenInputTime['YY'].toString());
@@ -428,12 +404,10 @@ class MomentParser {
         let offset = 0
 
         if(this.userGivenInputTime['DDDD'] || this.userGivenInputTime['DDD']){
-            console.log("type is in year-date format")
             return this.parseOrdinalDateFormat(year, this.userGivenInputTime['DDDD'] || this.userGivenInputTime['DD'], hour, minute, second, milliSecond, offset);
         }
 
         else if(this.userGivenInputTime['WW'] || this.userGivenInputTime['W']){
-            console.log("type is in week-day format")
             return this.parseWeekDateFormat(year, this.userGivenInputTime['WW'] || this.userGivenInputTime['W'], this.userGivenInputTime['E']||1, hour, minute, second, milliSecond, offset);
         }
 
@@ -445,18 +419,17 @@ class MomentParser {
         || (this.userGivenInputTime['Q'] ? (this.userGivenInputTime['Q'] * 3) + 1 : null)
         || 1
 
-        console.log("month ", month)
         let date = this.userGivenInputTime['DD']
         || this.userGivenInputTime['D']
         || (this.userGivenInputTime['Do'] ? this.userGivenInputTime['Do'].substring(0, this.userGivenInputTime['Do'].length-2) : null)
         || 1
 
-        console.log('year ', year)
+        /*console.log('year ', year)
         console.log("Date ", date)
         console.log("minutes ", minute)
         console.log("hour ", hour)
         console.log("second ", second)
-        console.log("ms ", milliSecond)
+        console.log("ms ", milliSecond)*/
 
         return this.parseFromDate(year, month, date, hour, minute, second, milliSecond, offset);
     }
@@ -485,9 +458,7 @@ class MomentParser {
             }
 
             weekCount += MomentContainer.convert((endYearTimeStamp - startYearTimeStamp)/1000 , "seconds", "days") / 7;
-            console.log("weekcount ", weekCount)
-            console.log("startyear ", startYearTimeStamp)
-            console.log("endyear ",endYearTimeStamp)
+
             if(week>weekCount){
                 return false;
             }
@@ -514,7 +485,6 @@ class MomentParser {
             if((userGivenInputTime).hasOwnProperty(key)){
                 let currRegex = new RegExp((LocaleSupport.validationRegex)[key])
                 if(!currRegex.test(userGivenInputTime[key])){
-                    console.log(key)
                     flag = false;
                 }
             }

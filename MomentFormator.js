@@ -1,9 +1,13 @@
 const LocaleSupport = require('./LocaleSupport');
 
 class MomentFormator{
-    constructor(momentContainer, Format) {
+    constructor(momentContainer, Format, locale) {
         this.momentContainer = momentContainer;
         this.format = Format ? Format : "YYYY-MM-DD HH:mm:ss.SSS Z";
+        this.locale = locale;
+        if(LocaleSupport[this.locale]['localFormats'].hasOwnProperty(this.format)){
+            this.format = LocaleSupport[this.locale]['localFormats'][this.format];
+        }
     }
 
     formatTime(){
@@ -13,15 +17,11 @@ class MomentFormator{
         Object.keys(momentContainer).forEach(function (key){
             while(format.includes(key)){
                 let pos = format.indexOf(key);
-                console.log(key , pos)
                 format = format.replace(new RegExp(key), '````````'.substring(0, key.length));
-                //console.log(format)
                 tokensToReplace[pos] = {'len': key.length, 'val': momentContainer[key].toString()}
             }
         })
 
-        console.log(format)
-        console.log(tokensToReplace)
         let indexPos = 0;
         let temp = "";
         Object.keys(tokensToReplace).forEach(function (pos) {
