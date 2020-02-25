@@ -1,3 +1,4 @@
+**Supported Tokens**
 <table class="table table-striped table-bordered">
   <tbody>
     <tr>
